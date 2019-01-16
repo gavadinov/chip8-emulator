@@ -20,7 +20,10 @@ public:
     bool loadApplication(std::string filename);
 
 private:
-    const WORD START_ADDRESS = 512;
+    const static auto START_ADDRESS = 512;
+    const static auto SCREEN_W = 64;
+    const static auto SCREEN_H = 32;
+
     WORD pc;                // Program counter
     WORD opcode;            // Current opcode
     WORD I;                // Index register
@@ -33,7 +36,7 @@ private:
     BYTE delay_timer;        // Delay timer
     BYTE sound_timer;        // Sound timer
 
-    BYTE screen[64 * 32];    // Total amount of pixels: 2048
+    BYTE screen[SCREEN_W * SCREEN_H];    // Total amount of pixels: 2048
     BYTE key[16];
 
     bool drawFlag;

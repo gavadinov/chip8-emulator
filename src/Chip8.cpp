@@ -123,7 +123,7 @@ void Chip8::cycle() {
                     pc += 2;
                     break;
                 case 0x0005: // 0x8XY5 - VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
-                    if (V[(opcode & 0x00F0) >> 4] > (V[(opcode & 0x0F00) >> 8])) { // overflow check
+                    if (V[(opcode & 0x00F0) >> 4] > (V[(opcode & 0x0F00) >> 8])) { // borrow check
                         V[0xF] = 0; // borrow
                     } else {
                         V[0xF] = 1;
@@ -137,7 +137,7 @@ void Chip8::cycle() {
                     pc += 2;
                     break;
                 case 0x0007: // 0x8XY7 - Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't.
-                    if (V[(opcode & 0x0F00) >> 8] > (V[(opcode & 0x00F0) >> 4])) { // overflow check
+                    if (V[(opcode & 0x0F00) >> 8] > (V[(opcode & 0x00F0) >> 4])) { // borrow check
                         V[0xF] = 0; // borrow
                     } else {
                         V[0xF] = 1;
@@ -155,26 +155,68 @@ void Chip8::cycle() {
             }
             break;
         case 0x9000: // 0x9XY0 - Skips the next instruction if VX doesn't equal VY.
+            if (V[(opcode & 0x0F00) >> 8] != V[(opcode & 0x00F0) >> 4]) {
+                pc += 4;
+            } else {
+                pc += 2;
+            }
             break;
         case 0xA000: // 0xANNN - Sets I to the address NNN.
             I = static_cast<WORD>(opcode & 0x0FFF);
             pc += 2;
             break;
         case 0xB000: // 0xBNNN - Jumps to the address NNN plus V0.
+            pc = static_cast<WORD>((opcode & 0x0FFF) + V[0]);
             break;
         case 0xC000: // 0xCXNN - Sets VX to the result of a random number & NN.
+            V[(opcode & 0x0F00) >> 8] = static_cast<BYTE>((rand() % 255) & (opcode & 0x00FF));
+            pc += 2;
             break;
         case 0xD000: // 0xDXYN - Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels.
             // Each row of 8 pixels is read as bit-coded starting from memory location I;
             // I value doesn't change after the execution of this instruction.
             // VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn,
-            // and to 0 if that doesn't happen
+            // and to 0 if that doesn't happen.
+        {
+            auto x = V[(opcode & 0x0F00) >> 8];
+            auto y = V[(opcode & 0x00F0) >> 4];
+            auto height = opcode & 0x000F;
+            BYTE pixel;
+            int screenIndex;
+
+            V[0xF] = 0;
+            for (int row = 0; row < height; ++row) {
+                pixel = memory[I + row];
+                for (int col = 0; col < 8; ++col) {
+                    if ((pixel & (0x80 >> col)) != 0) {
+                        screenIndex = x + col + ((y + row) * SCREEN_W);
+                        if (screen[screenIndex] == 1) {
+                            V[0xF] = 1;
+                        }
+                        screen[screenIndex] ^= 1;
+                    }
+                }
+            }
+
+            drawFlag = true;
+            pc += 2;
             break;
+        }
         case 0xE000:
             switch (opcode & 0x000F) {
                 case 0x000E: // 0xEX9E - Skips the next instruction if the key stored in VX is pressed.
+                    if (key[(opcode & 0x0F00) >> 8] != 0) {
+                        pc += 4;
+                    } else {
+                        pc += 2;
+                    }
                     break;
                 case 0x0001: // 0xEXA1 - Skips the next instruction if the key stored in VX isn't pressed.
+                    if (key[(opcode & 0x0F00) >> 8] == 0) {
+                        pc += 4;
+                    } else {
+                        pc += 2;
+                    }
                     break;
                 default:
                     unknownOpcode(opcode);
@@ -183,26 +225,52 @@ void Chip8::cycle() {
         case 0xF000:
             switch (opcode & 0x00FF) {
                 case 0x0007: // 0xFX07 - Sets VX to the value of the delay timer.
+                    V[(opcode & 0x0F00) >> 8] = delay_timer;
+                    pc += 2;
                     break;
                 case 0x000A: // 0xFX0A - A key press is awaited, and then stored in VX. (Blocking Operation. All instruction halted until next key event)
                     break;
                 case 0x0015: // 0xFX15 - Sets the delay timer to VX.
+                    delay_timer = V[(opcode & 0x0F00) >> 8];
+                    pc += 2;
                     break;
                 case 0x0018: // 0xFX18 - Sets the sound timer to VX.
+                    sound_timer = V[(opcode & 0x0F00) >> 8];
+                    pc += 2;
                     break;
                 case 0x001E: // 0xFX1E - Adds VX to I. VF is set to 1 when there is a range overflow (I+VX>0xFFF), and to 0 when there isn't.
+                    if (I + V[(opcode & 0x0F00) >> 8] > 0xFFF) {
+                        V[0xF] = 1;
+                    } else {
+                        V[0xF] = 0;
+                    }
+                    I += V[(opcode & 0x0F00) >> 8];
+                    pc += 2;
                     break;
                 case 0x0029: // 0xFX29 - Sets I to the location of the sprite for the character in VX.
+                    pc += 2;
                     break;
                 case 0x0033: // 0xFX33 - Stores the binary-coded decimal representation of VX,
                     // with the most significant of three digits at the address in I,
                     // the middle digit at I plus 1, and the least significant digit at I plus 2.
+                    memory[I] = static_cast<BYTE>(V[(opcode & 0x0F00) >> 8] / 100);
+                    memory[I + 1] = static_cast<BYTE>((V[(opcode & 0x0F00) >> 8] / 10) % 10);
+                    memory[I + 2] = static_cast<BYTE>((V[(opcode & 0x0F00) >> 8] % 100) % 10);
+                    pc += 2;
                     break;
                 case 0x0055: // 0xFX55 - Stores V0 to VX (including VX) in memory starting at address I.
                     // The offset from I is increased by 1 for each value written, but I itself is left unmodified.
+                    for (int ii = 0; ii <= (opcode & 0x0F00) >> 8; ++ii) {
+                        memory[I + ii] = V[ii];
+                    }
+                    pc += 2;
                     break;
                 case 0x0065: // 0xFX65 - Fills V0 to VX (including VX) with values from memory starting at address I.
                     // The offset from I is increased by 1 for each value written, but I itself is left unmodified.
+                    for (int ii = 0; ii <= (opcode & 0x0F00) >> 8; ++ii) {
+                        V[ii] = memory[I + ii];
+                    }
+                    pc += 2;
                     break;
                 default:
                     unknownOpcode(opcode);
