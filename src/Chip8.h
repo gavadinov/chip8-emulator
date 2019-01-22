@@ -9,11 +9,16 @@ typedef unsigned short WORD;
 
 class Chip8 {
 public:
-    Chip8() = default;
-
-    ~Chip8() = default;
+    const static auto SCREEN_W = 64;
+    const static auto SCREEN_H = 32;
+    const static size_t SCREEN_SIZE = SCREEN_W * SCREEN_H;
 
     bool getDrawFlag();
+
+    BYTE* getScreen();
+
+    void pressKey(BYTE key);
+    void releaseKey(BYTE key);
 
     void cycle();
 
@@ -21,8 +26,6 @@ public:
 
 private:
     const static auto START_ADDRESS = 512;
-    const static auto SCREEN_W = 64;
-    const static auto SCREEN_H = 32;
 
     WORD pc;                // Program counter
     WORD opcode;            // Current opcode
@@ -36,8 +39,8 @@ private:
     BYTE delay_timer;        // Delay timer
     BYTE sound_timer;        // Sound timer
 
-    BYTE screen[SCREEN_W * SCREEN_H];    // Total amount of pixels: 2048
-    BYTE key[16];
+    BYTE screen[SCREEN_SIZE];    // Total amount of pixels: 2048
+    BYTE keys[16];
 
     bool drawFlag;
 
