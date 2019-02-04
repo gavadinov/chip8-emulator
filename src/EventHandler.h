@@ -4,6 +4,7 @@
 #include <SDL2/SDL_events.h>
 #include <map>
 #include "Chip8.h"
+#include "types.h"
 
 class EventHandler {
 public:

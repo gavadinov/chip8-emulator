@@ -2,10 +2,8 @@
 #define CHIP8_CHIP8_H
 
 #include <string>
-
-typedef unsigned char BYTE;
-
-typedef unsigned short WORD;
+#include "types.h"
+#include "Debugger.h"
 
 class Chip8 {
 public:
@@ -45,7 +43,6 @@ private:
     bool drawFlag;
 
     void init();
-
 };
 
 #endif //CHIP8_CHIP8_H

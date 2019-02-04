@@ -67,7 +67,7 @@ void Chip8::cycle() {
     drawFlag = false;
     // The size of the next opcode is 2 bytes so we merge pc and pc+1
     opcode = (memory[pc] << 8) | memory[pc + 1];
-    std::cout << "Executing opcode: 0x" << std::hex << opcode << std::endl;
+    Debugger::opcode(opcode);
 
     switch (opcode & 0xF000) {
         case 0x0000:
@@ -231,10 +231,7 @@ void Chip8::cycle() {
         case 0xE000:
             switch (opcode & 0x00FF) {
                 case 0x009E: // 0xEX9E - Skips the next instruction if the key stored in VX is pressed.
-//                {
-//                    auto key = (opcode & 0x0F00) >> 8;
-//                    std::cout << "Check if IS pressed: " << (char)keyMap.at(key) << std::endl;
-//                }
+                    Debugger::checkKeyPressed(static_cast<BYTE>((opcode & 0x0F00) >> 8));
                     if (keys[(opcode & 0x0F00) >> 8] != 0) {
                         pc += 4;
                     } else {
@@ -242,10 +239,7 @@ void Chip8::cycle() {
                     }
                     break;
                 case 0x00A1: // 0xEXA1 - Skips the next instruction if the key stored in VX isn't pressed.
-//                {
-//                    auto key = (opcode & 0x0F00) >> 8;
-//                    std::cout << "Check if NOT pressed: " << (char)keyMap.at(key) << std::endl;
-//                }
+                    Debugger::checkKeyNotPressed(static_cast<BYTE>((opcode & 0x0F00) >> 8));
                     if (keys[(opcode & 0x0F00) >> 8] == 0) {
                         pc += 4;
                     } else {
@@ -353,11 +347,11 @@ BYTE* Chip8::getScreen() {
 }
 
 void Chip8::pressKey(BYTE key) {
-    std::cout << "Key DOWN: " << (int)key << std::endl;
+    Debugger::keyDown(key);
     keys[key] = 1;
 }
 
 void Chip8::releaseKey(BYTE key) {
-    std::cout << "Key UP: " << (int)key << std::endl;
+    Debugger::keyUp(key);
     keys[key] = 0;
 }
