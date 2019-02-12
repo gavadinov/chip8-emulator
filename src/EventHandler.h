@@ -1,7 +1,7 @@
 #ifndef CHIP8_EVENTHANDLER_H
 #define CHIP8_EVENTHANDLER_H
 
-#include <SDL2/SDL_events.h>
+#include <SDL_events.h>
 #include <map>
 #include "Chip8.h"
 #include "types.h"

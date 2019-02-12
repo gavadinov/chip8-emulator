@@ -3,7 +3,7 @@
 #include <iostream>
 #include <map>
 #include <numeric>
-#include <SDL2/SDL_keycode.h>
+#include <SDL_keycode.h>
 #include "Chip8.h"
 
 static void unknownOpcode(WORD opcode) {

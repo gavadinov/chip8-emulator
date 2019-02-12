@@ -22,8 +22,6 @@ int main(int argc, char** argv) {
 
     chip8.loadApplication(argv[1]);
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wmissing-noreturn"
     for (;;) {
         chip8.cycle();
 
@@ -42,5 +40,4 @@ int main(int argc, char** argv) {
 
         eventHandler.processEvent();
     }
-#pragma clang diagnostic pop
 }
