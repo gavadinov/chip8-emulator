@@ -1,3 +1,6 @@
+#include <map>
+#include <iostream>
+#include <SDL_keycode.h>
 #include "Debugger.h"
 
 const static std::map<BYTE, char> keyMap = {
@@ -23,7 +26,7 @@ const static std::map<BYTE, char> keyMap = {
 };
 
 void Debugger::opcode(WORD opcode) {
-//    std::cout << "Executing opcode: 0x" << std::hex << opcode << std::endl;
+    //    std::cout << "Executing opcode: 0x" << std::hex << opcode << std::endl;
 }
 
 void Debugger::keyDown(BYTE key) {
@@ -32,4 +35,12 @@ void Debugger::keyDown(BYTE key) {
 
 void Debugger::keyUp(BYTE key) {
     std::cout << "Key UP: " << keyMap.at(key) << std::endl;
+}
+
+void Debugger::checkKeyPressed(BYTE key) {
+    std::cout << "Expect Key Pressed: " << keyMap.at(key) << std::endl;
+}
+
+void Debugger::checkKeyNotPressed(BYTE key) {
+    std::cout << "Expect Key NOT Pressed: " << keyMap.at(key) << std::endl;
 }

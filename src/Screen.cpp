@@ -1,4 +1,7 @@
 #include "Screen.h"
+#include "SDL_rect.h"
+#include "SDL_surface.h"
+#include "SDL_ttf.h"
 
 Screen::Screen(const int w, const int h):
 		window(nullptr),
@@ -77,11 +80,29 @@ void Screen::update() {
 }
 
 // We want to display each pixel from the chip8 memory as a square.
-void Screen::setSquare(const int x, const int y, const int modifier, const Uint32 color) {
-	for (int yy = 0; yy < modifier; ++yy) {
-		for (int xx = 0; xx < modifier; ++xx) {
-			buffer[((x * modifier) + xx) + (((y * modifier) + yy) * w)] = color;
+void Screen::renderSquare(const int x, const int y, const int squareWidth, const Uint8 red, const Uint8 green, const Uint8 blue) {
+    Uint32 color = (red << 24) | (green << 16) | (blue << 8) | 0xFF;
+	for (int yy = 0; yy < squareWidth; ++yy) {
+		for (int xx = 0; xx < squareWidth; ++xx) {
+			buffer[((x * squareWidth) + xx) + (((y * squareWidth) + yy) * w)] = color;
 		}
 	}
 }
 
+void Screen::renderText(int x, int y, const Uint8 red, const Uint8 green, const Uint8 blue)
+{
+    SDL_Color color = {red, green, blue};
+    TTF_Font* sans = TTF_OpenFont("Sans.ttf", 24);
+
+    SDL_Surface* surfaceMessage = TTF_RenderText_Solid(sans, "put your text here", color);
+
+    SDL_Texture* message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+
+    SDL_Rect messageRect;
+    messageRect.x = x;
+    messageRect.y = y;
+    messageRect.w = 100;
+    messageRect.h = 100;
+
+    SDL_RenderCopy(renderer, message, nullptr, &messageRect);
+}

@@ -11,6 +11,8 @@ public:
     const static auto SCREEN_H = 32;
     const static size_t SCREEN_SIZE = SCREEN_W * SCREEN_H;
 
+    Chip8(Debugger* debugger);
+
     bool getDrawFlag();
 
     BYTE* getScreen();
@@ -24,6 +26,8 @@ public:
 
 private:
     const static auto START_ADDRESS = 512;
+
+    Debugger* debugger;
 
     WORD pc;                // Program counter
     WORD opcode;            // Current opcode

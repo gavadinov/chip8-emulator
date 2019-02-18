@@ -12,8 +12,8 @@ public:
 
     void update();
 
-    void setPixel(int x, int y, Uint8 red, Uint8 green, Uint8 blue);
-    void setSquare(int x, int y, int modifier, Uint32 color);
+    void renderSquare(const int x, const int y, const int modifier, const Uint8 red, const Uint8 green, const Uint8 blue);
+    void renderText(const int x, const int y, const Uint8 red, const Uint8 green, const Uint8 blue);
 private:
     const int w;
     const int h;
