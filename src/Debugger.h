@@ -5,7 +5,6 @@
 
 class Debugger {
 public:
-    const static auto SCREEN_W = 500;
     void opcode(WORD opcode);
 
     void keyUp(BYTE key);

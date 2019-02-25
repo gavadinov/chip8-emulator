@@ -13,7 +13,6 @@ public:
     void update();
 
     void renderSquare(const int x, const int y, const int modifier, const Uint8 red, const Uint8 green, const Uint8 blue);
-    void renderText(const int x, const int y, const Uint8 red, const Uint8 green, const Uint8 blue);
 private:
     const int w;
     const int h;
