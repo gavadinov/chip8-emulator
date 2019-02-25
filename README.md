@@ -9,6 +9,8 @@ The only prerequisite is to have [SLD2](https://www.libsdl.org/download-2.0.php)
 
 ## Run
 To play a game simply pass a game file to the executable `chip8 cool_game.c8`
+
+## Screenshots
 ![Screenshot1](si-1.jpg)
 
 
